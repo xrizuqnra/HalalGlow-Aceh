@@ -1,11 +1,45 @@
 // Shopping Cart Drawer, Vouchers, Checkout Modal, Digital Invoice & Order History
 
-import { state, persistCart, persistOrders, calculateCartTotals } from '../state/store.js';
+import {
+  state,
+  isAuthenticated,
+  setCartFromServer,
+  calculateCartTotals,
+  updateCounters
+} from '../state/store.js';
 import { escapeHtml, formatRupiah, showToast, copyTextToClipboard, buildDemoWhatsAppUrl } from '../utils/format.js';
 import { getProductVisualSrc, getProductFallbackSrc } from '../utils/productArt.js';
+import { apiRequest } from '../utils/api.js';
 import { attachImageFallbacks } from './catalogView.js';
+import { openAuthModal } from './authModal.js';
+
+function ensureCustomerAccountForCart(customMsg = null) {
+  if (isAuthenticated()) return true;
+  showToast(
+    customMsg || 'Silakan buat akun pelanggan atau masuk terlebih dahulu untuk mengecek dan mengisi keranjang.',
+    'warn'
+  );
+  openAuthModal('register');
+  return false;
+}
+
+export async function syncCartToServer() {
+  if (!isAuthenticated()) return;
+  try {
+    const res = await apiRequest('/api/cart', {
+      method: 'PUT',
+      body: state.cartState
+    });
+    setCartFromServer(res.cart);
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : 'Gagal menyinkronkan keranjang.', 'warn');
+  }
+}
 
 export function openCartDrawer() {
+  if (!ensureCustomerAccountForCart('Buat akun pelanggan atau masuk terlebih dahulu untuk mengecek isi keranjang.')) {
+    return;
+  }
   renderCartDrawer();
   const drawer = document.getElementById('cart-drawer');
   if (drawer) drawer.classList.remove('is-hidden');
@@ -16,9 +50,12 @@ export function closeCartDrawer() {
   if (drawer) drawer.classList.add('is-hidden');
 }
 
-export function addToCart(prodId, selectedVariant = '') {
+export async function addToCart(prodId, selectedVariant = '') {
+  if (!ensureCustomerAccountForCart('Buat akun pelanggan dulu agar dapat memasukkan barang ke keranjang.')) {
+    return false;
+  }
   const p = state.appData.products.find((item) => item.id === prodId);
-  if (!p) return;
+  if (!p) return false;
 
   const defaultVariant =
     selectedVariant || (p.shades && p.shades.length > 0 ? p.shades[0].name : 'Standard Size');
@@ -35,12 +72,17 @@ export function addToCart(prodId, selectedVariant = '') {
     });
   }
 
-  persistCart();
+  updateCounters();
   renderCartDrawer();
+  await syncCartToServer();
   showToast(`"${p.nama}" (${defaultVariant}) masuk ke Keranjang.`);
+  return true;
 }
 
-export function addBundleToCart(bndId) {
+export async function addBundleToCart(bndId) {
+  if (!ensureCustomerAccountForCart('Buat akun pelanggan dulu agar dapat memasukkan paket ke keranjang.')) {
+    return;
+  }
   const b = state.appData.bundles.find((item) => item.id === bndId);
   if (!b) return;
 
@@ -61,54 +103,64 @@ export function addBundleToCart(bndId) {
     }
   });
 
-  persistCart();
+  updateCounters();
   renderCartDrawer();
+  await syncCartToServer();
   openCartDrawer();
   showToast(`Seluruh produk dari "${b.nama}" ditambahkan ke Keranjang.`);
 }
 
-export function updateCartItemQty(uid, delta) {
+export async function updateCartItemQty(uid, delta) {
+  if (!ensureCustomerAccountForCart()) return;
   const idx = state.cartState.items.findIndex((i) => i.uid === uid);
   if (idx === -1) return;
   state.cartState.items[idx].qty += delta;
   if (state.cartState.items[idx].qty <= 0) {
     state.cartState.items.splice(idx, 1);
   }
-  persistCart();
+  updateCounters();
   renderCartDrawer();
+  await syncCartToServer();
 }
 
-export function removeCartItem(uid) {
+export async function removeCartItem(uid) {
+  if (!ensureCustomerAccountForCart()) return;
   state.cartState.items = state.cartState.items.filter((i) => i.uid !== uid);
-  persistCart();
+  updateCounters();
   renderCartDrawer();
+  await syncCartToServer();
   showToast('Item dihapus dari keranjang.', 'warn');
 }
 
-export function clearCart() {
+export async function clearCart() {
+  if (!ensureCustomerAccountForCart()) return;
   state.cartState.items = [];
   state.cartState.voucherCode = '';
-  persistCart();
+  updateCounters();
   renderCartDrawer();
+  await syncCartToServer();
   showToast('Keranjang belanja dikosongkan.', 'warn');
 }
 
-export function applyCartVoucher(overrideCode = null) {
+export async function applyCartVoucher(overrideCode = null) {
+  if (!ensureCustomerAccountForCart()) return;
   const inputEl = document.getElementById('cart-voucher-input');
   const raw = overrideCode !== null ? overrideCode : inputEl ? inputEl.value : '';
   const code = (raw || '').trim().toUpperCase();
 
   if (!code) {
     state.cartState.voucherCode = '';
-    persistCart();
+    updateCounters();
     renderCartDrawer();
+    await syncCartToServer();
     return;
   }
 
   if (code === 'HALALGLOW10' || code === 'ACEHCANTIK') {
     state.cartState.voucherCode = code;
-    persistCart();
+    updateCounters();
     renderCartDrawer();
+    await syncCartToServer();
     showToast(`Voucher ${code} berhasil diterapkan.`);
   } else {
     showToast('Kode voucher tidak valid. Gunakan HALALGLOW10 atau ACEHCANTIK.', 'warn');
@@ -135,6 +187,25 @@ export function renderCartDrawer() {
   if (voucherEl) voucherEl.value = state.cartState.voucherCode || '';
   if (pickupBox) pickupBox.classList.toggle('is-hidden', state.cartState.shippingMethod !== 'pickup');
   if (voucherStatus) voucherStatus.textContent = state.cartState.voucherCode ? `Aktif: ${state.cartState.voucherCode}` : '';
+
+  if (!isAuthenticated()) {
+    container.innerHTML = `
+      <div class="surface-card surface-card--subtle" style="text-align:center;padding:2.25rem 1rem;display:flex;flex-direction:column;gap:0.75rem;">
+        <h3 style="font-size:1rem;">Buat Akun Pelanggan Terlebih Dahulu</h3>
+        <p style="font-size:0.78rem;color:var(--text-secondary);">
+          Untuk mengecek dan memasukkan produk ke keranjang, silakan daftar atau masuk ke akun pelanggan Anda.
+        </p>
+        <div style="display:flex;justify-content:center;gap:0.5rem;">
+          <button type="button" class="btn btn-primary" data-action="open-auth" data-mode="register">Daftar Akun</button>
+          <button type="button" class="btn btn-outline" data-action="open-auth" data-mode="login">Masuk</button>
+        </div>
+      </div>
+    `;
+    optionsBox.style.opacity = '0.5';
+    optionsBox.style.pointerEvents = 'none';
+    checkoutBtn.disabled = true;
+    return;
+  }
 
   if (state.cartState.items.length === 0) {
     container.innerHTML = `
@@ -209,6 +280,7 @@ export function renderCartDrawer() {
 }
 
 export function openCheckoutModal() {
+  if (!ensureCustomerAccountForCart()) return;
   if (state.cartState.items.length === 0) return;
   closeCartDrawer();
 
@@ -332,61 +404,31 @@ export function closeCheckoutModal() {
   if (modal) modal.classList.add('is-hidden');
 }
 
-export function submitSimulatedCheckout(formElement) {
+export async function submitSimulatedCheckout(formElement) {
+  if (!ensureCustomerAccountForCart()) return;
   const fd = new FormData(formElement);
-  const totals = calculateCartTotals();
 
-  const invoiceItems = state.cartState.items.map((item) => {
-    const p = state.appData.products.find((prod) => prod.id === item.prodId);
-    return {
-      prodId: item.prodId,
-      nama: p ? p.nama : 'Produk Halal',
-      brand: p ? p.brand : '-',
-      variant: item.variant,
-      harga: p ? p.harga : 0,
-      qty: item.qty
-    };
-  });
+  try {
+    const res = await apiRequest('/api/orders', {
+      method: 'POST',
+      body: {
+        buyerName: String(fd.get('buyerName') || ''),
+        buyerPhone: String(fd.get('buyerPhone') || ''),
+        buyerAddress: String(fd.get('buyerAddress') || ''),
+        paymentMethod: String(fd.get('paymentMethod') || '')
+      }
+    });
 
-  const randomDigits = Math.floor(1000 + Math.random() * 9000);
-  const invoiceId = `INV-HGA-2026${randomDigits}`;
-  const nowStr = new Date().toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+    state.orderHistory.unshift(res.order);
+    setCartFromServer(res.cart);
+    renderCartDrawer();
+    renderCustomerOrders();
 
-  const orderRecord = {
-    invoiceId,
-    tanggal: nowStr,
-    status: 'Pembayaran Simulasi Terverifikasi',
-    buyerName: String(fd.get('buyerName') || ''),
-    buyerPhone: String(fd.get('buyerPhone') || ''),
-    buyerAddress: String(fd.get('buyerAddress') || ''),
-    paymentMethod: String(fd.get('paymentMethod') || ''),
-    shippingMethod: state.cartState.shippingMethod,
-    pickupStore: state.cartState.pickupStore,
-    voucherCode: state.cartState.voucherCode,
-    items: invoiceItems,
-    subtotal: totals.subtotal,
-    discount: totals.discount,
-    shippingCost: totals.shippingCost,
-    grandTotal: totals.grandTotal
-  };
-
-  state.orderHistory.unshift(orderRecord);
-  persistOrders();
-
-  state.cartState.items = [];
-  state.cartState.voucherCode = '';
-  persistCart();
-  renderCartDrawer();
-  renderCustomerOrders();
-
-  showToast(`Transaksi berhasil. Invoice ${invoiceId} dibuat.`);
-  openInvoiceModal(invoiceId);
+    showToast(`Transaksi berhasil. Invoice ${res.order.invoiceId} dibuat.`);
+    openInvoiceModal(res.order.invoiceId);
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : 'Gagal memproses checkout.', 'warn');
+  }
 }
 
 export function openInvoiceModal(invoiceId) {
@@ -500,6 +542,22 @@ export async function copyInvoiceText(invoiceId) {
 export function renderCustomerOrders() {
   const container = document.getElementById('customer-orders-list');
   if (!container) return;
+
+  if (!isAuthenticated()) {
+    container.innerHTML = `
+      <div class="empty-state" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+        <h3 style="font-size:1.15rem;">Masuk atau Daftar Akun Pelanggan</h3>
+        <p style="font-size:0.82rem;color:var(--text-secondary);max-width:34rem;">
+          Buat akun pelanggan terlebih dahulu untuk mengecek keranjang belanja, membuat pesanan, dan melihat riwayat invoice Anda.
+        </p>
+        <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+          <button type="button" class="btn btn-primary" data-action="open-auth" data-mode="register">Daftar Akun Pelanggan</button>
+          <button type="button" class="btn btn-outline" data-action="open-auth" data-mode="login">Masuk Akun</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   if (state.orderHistory.length === 0) {
     container.innerHTML = `

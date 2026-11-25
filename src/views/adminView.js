@@ -1,12 +1,19 @@
-// Store Curator & Manager CRUD Dashboard (Products with Photo Upload, Aceh Stores, Bundles & Orders)
+// Store Creator & Curator CRUD Dashboard (Server-Authenticated, Multi-URL Photos, Stores, Bundles & Orders)
 
-import { state, persistAppData, persistOrders, resetAppDataToDefault } from '../state/store.js';
+import {
+  state,
+  isCreatorUser,
+  setAppDataFromServer,
+  setOrdersFromServer
+} from '../state/store.js';
 import { escapeHtml, formatRupiah, showToast } from '../utils/format.js';
 import { getProductVisualSrc, getProductFallbackSrc, getProductGallerySrcs } from '../utils/productArt.js';
+import { apiRequest } from '../utils/api.js';
 import { attachImageFallbacks } from './catalogView.js';
 import { renderCustomerOrders } from './cartCheckout.js';
 
 export function switchAdminEntity(entity) {
+  if (!isCreatorUser()) return;
   state.activeAdminEntity = entity;
   state.editingEntityId = null;
 
@@ -19,13 +26,30 @@ export function switchAdminEntity(entity) {
 }
 
 export function resetAdminForm() {
+  if (!isCreatorUser()) return;
   state.editingEntityId = null;
   renderAdminForm();
 }
 
 export function renderAdminDashboard() {
+  const lockedGate = document.getElementById('admin-locked-gate');
+  const unlockedWorkspace = document.getElementById('admin-unlocked-workspace');
   const formCol = document.getElementById('admin-form-col');
   const listCol = document.getElementById('admin-list-col');
+
+  if (!isCreatorUser()) {
+    if (lockedGate) lockedGate.classList.remove('is-hidden');
+    if (unlockedWorkspace) unlockedWorkspace.classList.add('is-hidden');
+    const form = document.getElementById('admin-crud-form');
+    const items = document.getElementById('admin-items-list');
+    if (form) form.innerHTML = '';
+    if (items) items.innerHTML = '';
+    return;
+  }
+
+  if (lockedGate) lockedGate.classList.add('is-hidden');
+  if (unlockedWorkspace) unlockedWorkspace.classList.remove('is-hidden');
+
   if (!formCol || !listCol) return;
 
   if (state.activeAdminEntity === 'orders') {
@@ -427,7 +451,18 @@ export function handleProductPhotoUrlInput(inputEl) {
   const thumb = row ? row.querySelector('.photo-url-thumb') : null;
   if (thumb instanceof HTMLImageElement) {
     const val = inputEl.value.trim();
-    thumb.src = val || fallbackSrc;
+    let safeSrc = fallbackSrc;
+    if (val) {
+      try {
+        const parsed = new URL(val);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          safeSrc = parsed.toString();
+        }
+      } catch {
+        // Ignore partial/invalid URL during typing
+      }
+    }
+    thumb.src = safeSrc;
   }
   updatePhotoUrlStatus();
 }
@@ -437,111 +472,121 @@ export function clearProductPhotoInput() {
   showToast('Daftar link foto direset ke ilustrasi studio.', 'warn');
 }
 
-export function handleAdminFormSubmit(formElement) {
+export async function handleAdminFormSubmit(formElement) {
+  if (!isCreatorUser()) {
+    showToast('Akses ditolak. Silakan masuk sebagai Creator.', 'warn');
+    return;
+  }
+
   const fd = new FormData(formElement);
+  const isEdit = Boolean(state.editingEntityId);
 
-  if (state.activeAdminEntity === 'products') {
-    const existing = state.editingEntityId
-      ? state.appData.products.find((p) => p.id === state.editingEntityId)
-      : null;
+  try {
+    if (state.activeAdminEntity === 'products') {
+      const existing = state.editingEntityId
+        ? state.appData.products.find((p) => p.id === state.editingEntityId)
+        : null;
 
-    const statusHalal = String(fd.get('statusHalal') || 'Tersertifikasi Halal BPJPH/MUI');
-    const jenisKulitList = fd.getAll('jenisKulit').map((v) => String(v));
-    const shadesParsed = parseShadesInput(String(fd.get('shadesInput') || ''));
-    const kandunganList = String(fd.get('kandunganUtama') || '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    const rawUrls = fd
-      .getAll('imageUrls')
-      .map((u) => String(u || '').trim())
-      .filter(Boolean);
-    const uniqueUrls = Array.from(new Set(rawUrls));
-
-    const record = {
-      id: state.editingEntityId || 'prod-' + Date.now(),
-      brand: String(fd.get('brand') || ''),
-      nama: String(fd.get('nama') || ''),
-      kategori: String(fd.get('kategori') || 'Skincare'),
-      subKategori: String(fd.get('subKategori') || fd.get('kategori') || 'Skincare'),
-      harga: Number(fd.get('harga')) || 0,
-      artAccent: existing?.artAccent || '#E11D74',
-      artBg: existing?.artBg || '#FCE7F3',
-      statusHalal,
-      nomorHalal:
-        String(fd.get('nomorHalal') || '').trim() ||
-        (statusHalal.includes('Tersertifikasi') ? 'ID00410000999 (Simulasi)' : 'Klaim Muslim-Friendly'),
-      nomorBpom: String(fd.get('nomorBpom') || 'NA18260000000 (Simulasi)'),
-      imageUrl: uniqueUrls[0] || '',
-      imageUrls: uniqueUrls,
-      jenisKulit: jenisKulitList.length > 0 ? jenisKulitList : ['Semua Jenis Kulit'],
-      infoWudhu:
-        String(fd.get('infoWudhu') || '').trim() ||
-        'Dapat dibersihkan menggunakan micellar water atau facial wash sebelum berwudhu.',
-      kandunganUtama: kandunganList.length > 0 ? kandunganList : ['Niacinamide', 'Vitamin E'],
-      shades: shadesParsed,
-      geraiTersedia: String(fd.get('geraiTersedia') || '')
+      const statusHalal = String(fd.get('statusHalal') || 'Tersertifikasi Halal BPJPH/MUI');
+      const jenisKulitList = fd.getAll('jenisKulit').map((v) => String(v));
+      const shadesParsed = parseShadesInput(String(fd.get('shadesInput') || ''));
+      const kandunganList = String(fd.get('kandunganUtama') || '')
         .split(',')
         .map((s) => s.trim())
-        .filter(Boolean),
-      deskripsi: String(fd.get('deskripsi') || ''),
-      unggulan: existing ? existing.unggulan : true
-    };
-    upsertEntity('products', record);
-  } else if (state.activeAdminEntity === 'stores') {
-    const nama = String(fd.get('nama') || '');
-    const wilayah = String(fd.get('wilayah') || 'Banda Aceh');
-    const layananList = String(fd.get('layanan') || '')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    const record = {
-      id: state.editingEntityId || 'str-' + Date.now(),
-      nama,
-      wilayah,
-      alamat: String(fd.get('alamat') || ''),
-      mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nama + ' ' + wilayah)}`,
-      brandTersedia: String(fd.get('brandTersedia') || '')
+        .filter(Boolean);
+
+      const rawUrls = fd
+        .getAll('imageUrls')
+        .map((u) => String(u || '').trim())
+        .filter(Boolean);
+      const uniqueUrls = Array.from(new Set(rawUrls));
+
+      const payload = {
+        brand: String(fd.get('brand') || ''),
+        nama: String(fd.get('nama') || ''),
+        kategori: String(fd.get('kategori') || 'Skincare'),
+        subKategori: String(fd.get('subKategori') || fd.get('kategori') || 'Skincare'),
+        harga: Number(fd.get('harga')) || 0,
+        artAccent: existing?.artAccent || '#E11D74',
+        artBg: existing?.artBg || '#FCE7F3',
+        statusHalal,
+        nomorHalal:
+          String(fd.get('nomorHalal') || '').trim() ||
+          (statusHalal.includes('Tersertifikasi') ? 'ID00410000999 (Simulasi)' : 'Klaim Muslim-Friendly'),
+        nomorBpom: String(fd.get('nomorBpom') || 'NA18260000000 (Simulasi)'),
+        imageUrl: uniqueUrls[0] || '',
+        imageUrls: uniqueUrls,
+        jenisKulit: jenisKulitList.length > 0 ? jenisKulitList : ['Semua Jenis Kulit'],
+        infoWudhu:
+          String(fd.get('infoWudhu') || '').trim() ||
+          'Dapat dibersihkan menggunakan micellar water atau facial wash sebelum berwudhu.',
+        kandunganUtama: kandunganList.length > 0 ? kandunganList : ['Niacinamide', 'Vitamin E'],
+        shades: shadesParsed,
+        geraiTersedia: String(fd.get('geraiTersedia') || '')
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        deskripsi: String(fd.get('deskripsi') || ''),
+        unggulan: existing ? existing.unggulan : true
+      };
+
+      const url = isEdit
+        ? `/api/admin/products/${encodeURIComponent(state.editingEntityId)}`
+        : '/api/admin/products';
+      const res = await apiRequest(url, { method: isEdit ? 'PUT' : 'POST', body: payload });
+      setAppDataFromServer(res.appData);
+    } else if (state.activeAdminEntity === 'stores') {
+      const nama = String(fd.get('nama') || '');
+      const wilayah = String(fd.get('wilayah') || 'Banda Aceh');
+      const layananList = String(fd.get('layanan') || '')
         .split(',')
         .map((s) => s.trim())
-        .filter(Boolean),
-      layanan: layananList.length > 0 ? layananList : ['Tester Produk', 'Konsultasi Beauty Advisor'],
-      kontak: String(fd.get('kontak') || '6281200005599')
-    };
-    upsertEntity('stores', record);
-  } else if (state.activeAdminEntity === 'bundles') {
-    const prodIds = fd.getAll('daftarProduk').map((v) => String(v));
-    const record = {
-      id: state.editingEntityId || 'bnd-' + Date.now(),
-      nama: String(fd.get('nama') || ''),
-      jenisKulit: String(fd.get('jenisKulit') || 'Semua Jenis Kulit'),
-      fokus: String(fd.get('fokus') || 'Daily Natural Makeup'),
-      estimasiBiaya: Number(fd.get('estimasiBiaya')) || 0,
-      deskripsi: String(fd.get('deskripsi') || ''),
-      daftarProduk: prodIds.length > 0 ? prodIds : state.appData.products.slice(0, 3).map((p) => p.id)
-    };
-    upsertEntity('bundles', record);
-  }
+        .filter(Boolean);
+      const payload = {
+        nama,
+        wilayah,
+        alamat: String(fd.get('alamat') || ''),
+        brandTersedia: String(fd.get('brandTersedia') || '')
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        layanan: layananList.length > 0 ? layananList : ['Tester Produk', 'Konsultasi Beauty Advisor'],
+        kontak: String(fd.get('kontak') || '6281200005599')
+      };
 
-  state.editingEntityId = null;
-  renderAdminDashboard();
-}
+      const url = isEdit
+        ? `/api/admin/stores/${encodeURIComponent(state.editingEntityId)}`
+        : '/api/admin/stores';
+      const res = await apiRequest(url, { method: isEdit ? 'PUT' : 'POST', body: payload });
+      setAppDataFromServer(res.appData);
+    } else if (state.activeAdminEntity === 'bundles') {
+      const prodIds = fd.getAll('daftarProduk').map((v) => String(v));
+      const payload = {
+        nama: String(fd.get('nama') || ''),
+        jenisKulit: String(fd.get('jenisKulit') || 'Semua Jenis Kulit'),
+        fokus: String(fd.get('fokus') || 'Daily Natural Makeup'),
+        estimasiBiaya: Number(fd.get('estimasiBiaya')) || 0,
+        deskripsi: String(fd.get('deskripsi') || ''),
+        daftarProduk: prodIds.length > 0 ? prodIds : state.appData.products.slice(0, 3).map((p) => p.id)
+      };
 
-function upsertEntity(collectionName, record) {
-  const list = state.appData[collectionName];
-  const idx = list.findIndex((item) => item.id === record.id);
-  if (idx >= 0) {
-    list[idx] = { ...list[idx], ...record };
-    showToast('Data berhasil diperbarui.');
-  } else {
-    list.unshift(record);
-    showToast('Data baru berhasil ditambahkan.');
+      const url = isEdit
+        ? `/api/admin/bundles/${encodeURIComponent(state.editingEntityId)}`
+        : '/api/admin/bundles';
+      const res = await apiRequest(url, { method: isEdit ? 'PUT' : 'POST', body: payload });
+      setAppDataFromServer(res.appData);
+    }
+
+    state.editingEntityId = null;
+    renderAdminDashboard();
+    showToast(isEdit ? 'Data berhasil diperbarui di server.' : 'Data baru berhasil ditambahkan.');
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : 'Gagal menyimpan data.', 'warn');
   }
-  persistAppData();
 }
 
 export function editAdminItem(id) {
+  if (!isCreatorUser()) return;
   const item = (state.appData[state.activeAdminEntity] || []).find((x) => x.id === id);
   if (!item) return;
   state.editingEntityId = id;
@@ -553,11 +598,23 @@ export function editAdminItem(id) {
   }
 }
 
-export function deleteAdminItem(id) {
-  state.appData[state.activeAdminEntity] = (state.appData[state.activeAdminEntity] || []).filter((x) => x.id !== id);
-  persistAppData();
-  renderAdminDashboard();
-  showToast('Data berhasil dihapus.', 'warn');
+export async function deleteAdminItem(id) {
+  if (!isCreatorUser()) {
+    showToast('Akses ditolak.', 'warn');
+    return;
+  }
+  const entity = state.activeAdminEntity;
+  if (entity !== 'products' && entity !== 'stores' && entity !== 'bundles') return;
+
+  try {
+    const res = await apiRequest(`/api/admin/${entity}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    setAppDataFromServer(res.appData);
+    if (state.editingEntityId === id) state.editingEntityId = null;
+    renderAdminDashboard();
+    showToast('Data berhasil dihapus.', 'warn');
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : 'Gagal menghapus data.', 'warn');
+  }
 }
 
 export function renderAdminList() {
@@ -673,17 +730,35 @@ export function renderAdminOrdersList() {
     .join('');
 }
 
-export function updateOrderStatus(invoiceId, newStatus) {
-  const order = state.orderHistory.find((o) => o.invoiceId === invoiceId);
-  if (!order) return;
-  order.status = newStatus;
-  persistOrders();
-  renderCustomerOrders();
-  showToast(`Status ${invoiceId} diperbarui menjadi "${newStatus}".`);
+export async function updateOrderStatus(invoiceId, newStatus) {
+  if (!isCreatorUser()) {
+    showToast('Akses ditolak.', 'warn');
+    return;
+  }
+  try {
+    const res = await apiRequest(`/api/admin/orders/${encodeURIComponent(invoiceId)}/status`, {
+      method: 'PATCH',
+      body: { status: newStatus }
+    });
+    setOrdersFromServer(res.orders);
+    renderCustomerOrders();
+    showToast(`Status ${invoiceId} diperbarui menjadi "${newStatus}".`);
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : 'Gagal memperbarui status pesanan.', 'warn');
+  }
 }
 
-export function handleResetDefaultData() {
-  resetAppDataToDefault();
-  renderAdminDashboard();
-  showToast('Seluruh katalog brand & gerai dikembalikan ke data awal.');
+export async function handleResetDefaultData() {
+  if (!isCreatorUser()) {
+    showToast('Akses ditolak.', 'warn');
+    return;
+  }
+  try {
+    const res = await apiRequest('/api/admin/reset', { method: 'POST' });
+    setAppDataFromServer(res.appData);
+    renderAdminDashboard();
+    showToast('Seluruh katalog brand & gerai dikembalikan ke data awal.');
+  } catch (err) {
+    showToast(err instanceof Error ? err.message : 'Gagal mereset katalog.', 'warn');
+  }
 }

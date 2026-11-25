@@ -1,18 +1,23 @@
-// Centralized State Management & localStorage Persistence
+// Centralized State Management (In-Memory Auth/Session + Server-Synced Catalog/Cart/Orders)
 
-import { DEFAULT_DATA, DEFAULT_DEMO_USERS, DEFAULT_ROUTINE } from '../data/defaults.js';
+import { DEFAULT_DATA, DEFAULT_ROUTINE } from '../data/defaults.js';
 
 export const STORAGE_KEYS = {
-  DATA: 'halalglow_sociolla_data_v1',
   WISHLIST: 'halalglow_sociolla_wish_v1',
   ROUTINE_ACTIVE: 'halalglow_sociolla_rtn_active_v1',
   ROUTINE_SAVED: 'halalglow_sociolla_rtn_saved_v1',
-  CART: 'halalglow_sociolla_cart_v1',
-  ORDERS: 'halalglow_sociolla_orders_v1',
-  AUTH: 'halalglow_sociolla_auth_v1',
-  USERS: 'halalglow_sociolla_users_v1',
   LANG: 'halalglow_sociolla_lang_v1'
 };
+
+// Clear any legacy plaintext client auth/user storage
+try {
+  localStorage.removeItem('halalglow_sociolla_auth_v1');
+  localStorage.removeItem('halalglow_sociolla_users_v1');
+  localStorage.removeItem('halalglow_sociolla_cart_v1');
+  localStorage.removeItem('halalglow_sociolla_orders_v1');
+} catch {
+  // Ignore storage errors
+}
 
 function safeReadJson(key, fallbackValue) {
   try {
@@ -24,29 +29,30 @@ function safeReadJson(key, fallbackValue) {
   }
 }
 
-function loadAppData() {
-  const parsed = safeReadJson(STORAGE_KEYS.DATA, null);
-  if (parsed && Array.isArray(parsed.products) && Array.isArray(parsed.stores) && Array.isArray(parsed.bundles)) {
-    return parsed;
-  }
-  const cloned = structuredClone(DEFAULT_DATA);
-  localStorage.setItem(STORAGE_KEYS.DATA, JSON.stringify(cloned));
-  return cloned;
-}
-
-export const state = {
-  appData: loadAppData(),
-  registeredUsers: safeReadJson(STORAGE_KEYS.USERS, DEFAULT_DEMO_USERS),
-  currentUser: safeReadJson(STORAGE_KEYS.AUTH, null),
-  wishlist: safeReadJson(STORAGE_KEYS.WISHLIST, []),
-  savedRoutines: safeReadJson(STORAGE_KEYS.ROUTINE_SAVED, []),
-  orderHistory: safeReadJson(STORAGE_KEYS.ORDERS, []),
-  cartState: safeReadJson(STORAGE_KEYS.CART, {
+function createEmptyCart() {
+  return {
     items: [],
     shippingMethod: 'pickup',
     pickupStore: 'HalalGlow Suzuya Mall Banda Aceh',
     voucherCode: ''
-  }),
+  };
+}
+
+// Session Bearer token lives ONLY in JS memory (never localStorage/sessionStorage)
+let inMemoryAuthToken = null;
+
+export const state = {
+  appData: structuredClone(DEFAULT_DATA),
+  currentUser: null,
+  creatorStatus: {
+    configured: true,
+    source: 'unknown',
+    creatorEmail: 'admin@halalglow.id'
+  },
+  wishlist: safeReadJson(STORAGE_KEYS.WISHLIST, []),
+  savedRoutines: safeReadJson(STORAGE_KEYS.ROUTINE_SAVED, []),
+  orderHistory: [],
+  cartState: createEmptyCart(),
   activeRoutine: safeReadJson(STORAGE_KEYS.ROUTINE_ACTIVE, DEFAULT_ROUTINE),
   currentLang: localStorage.getItem(STORAGE_KEYS.LANG) || 'id',
   activeTab: 'catalog',
@@ -54,8 +60,49 @@ export const state = {
   editingEntityId: null
 };
 
-export function persistAppData() {
-  localStorage.setItem(STORAGE_KEYS.DATA, JSON.stringify(state.appData));
+export function getAuthToken() {
+  return inMemoryAuthToken;
+}
+
+export function isAuthenticated() {
+  return Boolean(inMemoryAuthToken && state.currentUser);
+}
+
+export function isCreatorUser() {
+  return Boolean(isAuthenticated() && state.currentUser?.role === 'admin');
+}
+
+export function setSessionAuth(token, user, cart = null, orders = null) {
+  inMemoryAuthToken = token || null;
+  state.currentUser = user || null;
+  state.cartState = cart || createEmptyCart();
+  state.orderHistory = Array.isArray(orders) ? orders : [];
+  updateCounters();
+}
+
+export function clearSessionAuth() {
+  inMemoryAuthToken = null;
+  state.currentUser = null;
+  state.cartState = createEmptyCart();
+  state.orderHistory = [];
+  state.editingEntityId = null;
+  updateCounters();
+}
+
+export function setAppDataFromServer(appData) {
+  if (appData && Array.isArray(appData.products) && Array.isArray(appData.stores) && Array.isArray(appData.bundles)) {
+    state.appData = appData;
+    updateCounters();
+  }
+}
+
+export function setCartFromServer(cart) {
+  state.cartState = cart || createEmptyCart();
+  updateCounters();
+}
+
+export function setOrdersFromServer(orders) {
+  state.orderHistory = Array.isArray(orders) ? orders : [];
   updateCounters();
 }
 
@@ -73,33 +120,9 @@ export function persistSavedRoutines() {
   localStorage.setItem(STORAGE_KEYS.ROUTINE_SAVED, JSON.stringify(state.savedRoutines));
 }
 
-export function persistCart() {
-  localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cartState));
-  updateCounters();
-}
-
-export function persistOrders() {
-  localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(state.orderHistory));
-  updateCounters();
-}
-
-export function persistAuth() {
-  if (state.currentUser) {
-    localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(state.currentUser));
-  } else {
-    localStorage.removeItem(STORAGE_KEYS.AUTH);
-  }
-  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(state.registeredUsers));
-}
-
 export function persistLanguage(lang) {
   state.currentLang = lang;
   localStorage.setItem(STORAGE_KEYS.LANG, lang);
-}
-
-export function resetAppDataToDefault() {
-  state.appData = structuredClone(DEFAULT_DATA);
-  persistAppData();
 }
 
 export function updateCounters() {
@@ -110,8 +133,11 @@ export function updateCounters() {
 
   const wishCount = state.wishlist.length;
   const rtnCount = state.activeRoutine.daftarItem.length;
-  const cartQtyTotal = (state.cartState.items || []).reduce((acc, item) => acc + (Number(item.qty) || 0), 0);
-  const ordersCount = state.orderHistory.length;
+  const authed = isAuthenticated();
+  const cartQtyTotal = authed
+    ? (state.cartState.items || []).reduce((acc, item) => acc + (Number(item.qty) || 0), 0)
+    : 0;
+  const ordersCount = authed ? state.orderHistory.length : 0;
 
   const map = {
     'wish-badge': wishCount,

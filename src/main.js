@@ -8,11 +8,13 @@ import './styles/components.css';
 import { translatePage } from './data/i18n.js';
 import {
   state,
-  persistCart,
+  isCreatorUser,
+  setAppDataFromServer,
   persistLanguage,
   updateCounters
 } from './state/store.js';
 import { showToast } from './utils/format.js';
+import { apiRequest } from './utils/api.js';
 import {
   renderProducts,
   setQuickBrand,
@@ -57,7 +59,8 @@ import {
   submitSimulatedCheckout,
   openInvoiceModal,
   copyInvoiceText,
-  renderCustomerOrders
+  renderCustomerOrders,
+  syncCartToServer
 } from './views/cartCheckout.js';
 import {
   switchAdminEntity,
@@ -76,11 +79,14 @@ import {
 } from './views/adminView.js';
 import {
   renderHeaderAuth,
+  refreshCreatorStatus,
   openAuthModal,
   closeAuthModal,
-  quickDemoLogin,
   handleLoginSubmit,
   handleRegisterSubmit,
+  handleCreatorClaimSubmit,
+  handleCreatorLoginSubmit,
+  handleCreatorChangePasswordSubmit,
   handleEditProfileSubmit,
   handleAvatarUrlInput,
   clearAvatarPreview,
@@ -218,9 +224,10 @@ function setupEventDelegation() {
         break;
       case 'add-cart-modal': {
         const variant = target.getAttribute('data-variant') || '';
-        addToCart(id, variant);
         closeProductModal();
-        openCartDrawer();
+        addToCart(id, variant).then((added) => {
+          if (added) openCartDrawer();
+        });
         break;
       }
       case 'add-routine':
@@ -338,10 +345,11 @@ function setupEventDelegation() {
         editAdminItem(id);
         break;
       case 'admin-delete':
-        deleteAdminItem(id);
-        renderProducts();
-        renderStores();
-        renderBundles();
+        deleteAdminItem(id).then(() => {
+          renderProducts();
+          renderStores();
+          renderBundles();
+        });
         break;
       case 'admin-add-photo-url':
         addProductPhotoUrlRow();
@@ -362,26 +370,22 @@ function setupEventDelegation() {
         clearAvatarPreview();
         break;
       case 'reset-default-data':
-        handleResetDefaultData();
-        renderProducts();
-        renderStores();
-        renderBundles();
+        handleResetDefaultData().then(() => {
+          renderProducts();
+          renderStores();
+          renderBundles();
+        });
         break;
       case 'open-auth':
-        openAuthModal(target.getAttribute('data-mode') || 'login');
+        openAuthModal(target.getAttribute('data-mode') || 'register');
         break;
       case 'open-auth-mobile':
         toggleMobileMenu(true);
-        openAuthModal(target.getAttribute('data-mode') || 'login');
+        openAuthModal(target.getAttribute('data-mode') || 'register');
         break;
       case 'close-auth-modal':
         closeAuthModal();
         break;
-      case 'quick-login': {
-        const role = quickDemoLogin(target.getAttribute('data-role') || 'member');
-        if (role === 'admin') switchTab('admin');
-        break;
-      }
       case 'logout':
         logoutUser();
         break;
@@ -447,11 +451,11 @@ function setupEventDelegation() {
       updateRoutineItemField(el.getAttribute('data-uid') || '', 'slot', el.value);
     } else if (el.id === 'cart-shipping-method') {
       state.cartState.shippingMethod = el.value;
-      persistCart();
       renderCartDrawer();
+      syncCartToServer();
     } else if (el.id === 'cart-pickup-store') {
       state.cartState.pickupStore = el.value;
-      persistCart();
+      syncCartToServer();
     } else if (el.getAttribute('data-action') === 'admin-order-status') {
       updateOrderStatus(el.getAttribute('data-id') || '', el.value);
     }
@@ -467,16 +471,26 @@ function setupEventDelegation() {
       submitSimulatedCheckout(form);
     } else if (form.id === 'admin-crud-form') {
       e.preventDefault();
-      handleAdminFormSubmit(form);
-      renderProducts();
-      renderStores();
-      renderBundles();
+      handleAdminFormSubmit(form).then(() => {
+        renderProducts();
+        renderStores();
+        renderBundles();
+      });
     } else if (form.id === 'login-form') {
       e.preventDefault();
       handleLoginSubmit(form);
     } else if (form.id === 'register-form') {
       e.preventDefault();
       handleRegisterSubmit(form);
+    } else if (form.id === 'creator-claim-form') {
+      e.preventDefault();
+      handleCreatorClaimSubmit(form);
+    } else if (form.id === 'creator-login-form') {
+      e.preventDefault();
+      handleCreatorLoginSubmit(form);
+    } else if (form.id === 'creator-change-password-form') {
+      e.preventDefault();
+      handleCreatorChangePasswordSubmit(form);
     } else if (form.id === 'edit-profile-form') {
       e.preventDefault();
       handleEditProfileSubmit(form);
@@ -504,9 +518,21 @@ function setupEventDelegation() {
       closeCartDrawer();
     }
   });
+  // Refresh views whenever auth state changes (login, register, creator claim, logout)
+  document.addEventListener('halalglow:auth-changed', (ev) => {
+    renderHeaderAuth();
+    renderCartDrawer();
+    renderCustomerOrders();
+    renderAdminDashboard();
+    if (ev instanceof CustomEvent && ev.detail?.switchToAdmin && isCreatorUser()) {
+      switchTab('admin');
+    } else if (state.activeTab === 'admin' && !isCreatorUser()) {
+      switchTab('catalog');
+    }
+  });
 }
 
-function initApp() {
+async function initApp() {
   setupEventDelegation();
   renderHeaderAuth();
   updateCounters();
@@ -515,6 +541,25 @@ function initApp() {
   renderRoutinePlanner();
   renderCartDrawer();
   renderCustomerOrders();
+  renderAdminDashboard();
+
+  // Hydrate authoritative catalog & creator security status from Express backend
+  try {
+    const [bootData] = await Promise.all([
+      apiRequest('/api/bootstrap'),
+      refreshCreatorStatus()
+    ]);
+    if (bootData?.appData) {
+      setAppDataFromServer(bootData.appData);
+      renderProducts();
+      renderStores();
+      renderBundles();
+      renderRoutinePlanner();
+      renderWishlist();
+    }
+  } catch {
+    // Fallback to initial catalog defaults if server bootstrap fails transiently
+  }
 
   // Ensure initial brand chip active state matches filter
   const brandSelect = document.getElementById('filter-brand');

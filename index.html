@@ -65,7 +65,7 @@
               <span data-i18n="navOrders">Pesanan</span>
               <span id="orders-badge" class="nav-count">0</span>
             </button>
-            <button type="button" class="nav-link" data-action="switch-tab" data-tab="admin" data-i18n="navAdmin">
+            <button type="button" id="nav-admin-desktop" class="nav-link is-hidden" data-action="switch-tab" data-tab="admin" data-i18n="navAdmin">
               Kelola Toko
             </button>
           </nav>
@@ -128,7 +128,7 @@
             <span data-i18n="navOrders">Pesanan</span>
             <span id="orders-badge-mobile" class="nav-count">0</span>
           </button>
-          <button type="button" class="btn btn-subtle" style="justify-content:flex-start;" data-action="switch-tab-mobile" data-tab="admin" data-i18n="navAdmin">
+          <button type="button" id="nav-admin-mobile" class="btn btn-subtle is-hidden" style="justify-content:flex-start;" data-action="switch-tab-mobile" data-tab="admin" data-i18n="navAdmin">
             Kelola Toko
           </button>
           <div id="mobile-auth-slot" style="padding-top:0.5rem;"></div>
@@ -635,57 +635,75 @@
         <div id="customer-orders-list" class="grid-2"></div>
       </section>
 
-      <!-- VIEW 7: ADMIN STORE MANAGER CRUD -->
+      <!-- VIEW 7: ADMIN STORE MANAGER CRUD (LOCKED TO CREATOR ACCOUNT) -->
       <section id="view-admin" class="view-section is-hidden container view-pad">
-        <div class="budget-card" style="margin-bottom:1.5rem;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;">
-          <div style="max-width:44rem;">
-            <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;opacity:0.9;" data-i18n="adminBannerBadge">
-              Mode Demo Pengelola Toko &amp; Kurator Aceh
-            </span>
-            <h2 style="color:#ffffff;font-size:1.5rem;margin-top:0.2rem;" data-i18n="adminTitle">
-              Dashboard Pengelolaan Katalog &amp; Gerai HalalGlow Aceh
-            </h2>
-            <p style="font-size:0.82rem;opacity:0.92;margin-top:0.35rem;" data-i18n="adminSub">
-              Tambah, ubah, atau hapus katalog produk brand halal yang masuk ke Aceh maupun daftar gerai mitra. Perubahan tersimpan otomatis di browser.
-            </p>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
-            <button type="button" class="btn" style="background:rgba(255,255,255,0.18);color:#ffffff;border-color:rgba(255,255,255,0.35);" data-action="open-curator-profile-edit">
-              Edit Profil Kurator
+        <div id="admin-locked-gate" class="surface-card" style="max-width:34rem;margin:2rem auto;text-align:center;display:flex;flex-direction:column;gap:0.9rem;">
+          <span class="section-kicker">Area Terproteksi Server</span>
+          <h2 style="font-size:1.4rem;">Akses Khusus Akun Creator</h2>
+          <p style="font-size:0.84rem;color:var(--text-secondary);">
+            Halaman pengelolaan katalog, foto produk, gerai Aceh, dan transaksi dikunci untuk keamanan agar tidak dapat diakses dari luar.
+          </p>
+          <div style="display:flex;justify-content:center;gap:0.6rem;padding-top:0.25rem;">
+            <button type="button" class="btn btn-primary" data-action="open-auth" data-mode="creator">
+              Masuk / Aktivasi Akun Creator
             </button>
-            <button type="button" class="btn" style="background:#ffffff;color:var(--accent-primary-hover);" data-action="reset-default-data" data-i18n="adminResetBtn">
-              Reset Data Default
+            <button type="button" class="btn btn-outline" data-action="switch-tab" data-tab="catalog">
+              Kembali ke Katalog
             </button>
           </div>
         </div>
 
-        <div class="segmented-tabs">
-          <button type="button" class="btn btn-primary" data-action="admin-entity" data-entity="products">Katalog Produk Brand</button>
-          <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="stores">Gerai &amp; Apotek Aceh</button>
-          <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="bundles">Paket Rekomendasi</button>
-          <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="orders">Riwayat Transaksi Checkout</button>
-        </div>
-
-        <div class="split-12">
-          <div class="col-5" id="admin-form-col">
-            <div class="surface-card">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                <h3 id="admin-form-title" style="font-size:1.15rem;">Tambah Produk Brand Baru</h3>
-                <button type="button" style="border:none;background:transparent;color:var(--accent-primary);font-size:0.75rem;font-weight:700;text-decoration:underline;" data-action="admin-new-form">
-                  Form Baru
-                </button>
-              </div>
-              <form id="admin-crud-form" style="display:flex;flex-direction:column;gap:0.8rem;font-size:0.82rem;"></form>
+        <div id="admin-unlocked-workspace" class="is-hidden">
+          <div class="budget-card" style="margin-bottom:1.5rem;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <div style="max-width:44rem;">
+              <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;opacity:0.9;" data-i18n="adminBannerBadge">
+                Mode Pengelola Toko &amp; Kurator Aceh Terverifikasi
+              </span>
+              <h2 style="color:#ffffff;font-size:1.5rem;margin-top:0.2rem;" data-i18n="adminTitle">
+                Dashboard Pengelolaan Katalog &amp; Gerai HalalGlow Aceh
+              </h2>
+              <p style="font-size:0.82rem;opacity:0.92;margin-top:0.35rem;" data-i18n="adminSub">
+                Tambah, ubah, atau hapus katalog produk brand halal yang masuk ke Aceh maupun daftar gerai mitra. Perubahan tersimpan aman di server.
+              </p>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+              <button type="button" class="btn" style="background:rgba(255,255,255,0.18);color:#ffffff;border-color:rgba(255,255,255,0.35);" data-action="open-curator-profile-edit">
+                Edit Profil &amp; Keamanan Creator
+              </button>
+              <button type="button" class="btn" style="background:#ffffff;color:var(--accent-primary-hover);" data-action="reset-default-data" data-i18n="adminResetBtn">
+                Reset Data Default
+              </button>
             </div>
           </div>
 
-          <div class="col-7" id="admin-list-col">
-            <div class="surface-card">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                <h3 id="admin-list-title" style="font-size:1.05rem;">Daftar Produk Aktif</h3>
-                <span id="admin-count-label" class="meta-line tabular-nums" style="color:var(--accent-primary);">0 item</span>
+          <div class="segmented-tabs">
+            <button type="button" class="btn btn-primary" data-action="admin-entity" data-entity="products">Katalog Produk Brand</button>
+            <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="stores">Gerai &amp; Apotek Aceh</button>
+            <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="bundles">Paket Rekomendasi</button>
+            <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="orders">Riwayat Transaksi Checkout</button>
+          </div>
+
+          <div class="split-12">
+            <div class="col-5" id="admin-form-col">
+              <div class="surface-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                  <h3 id="admin-form-title" style="font-size:1.15rem;">Tambah Produk Brand Baru</h3>
+                  <button type="button" style="border:none;background:transparent;color:var(--accent-primary);font-size:0.75rem;font-weight:700;text-decoration:underline;" data-action="admin-new-form">
+                    Form Baru
+                  </button>
+                </div>
+                <form id="admin-crud-form" style="display:flex;flex-direction:column;gap:0.8rem;font-size:0.82rem;"></form>
               </div>
-              <div id="admin-items-list" style="display:flex;flex-direction:column;gap:0.65rem;max-height:640px;overflow-y:auto;"></div>
+            </div>
+
+            <div class="col-7" id="admin-list-col">
+              <div class="surface-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                  <h3 id="admin-list-title" style="font-size:1.05rem;">Daftar Produk Aktif</h3>
+                  <span id="admin-count-label" class="meta-line tabular-nums" style="color:var(--accent-primary);">0 item</span>
+                </div>
+                <div id="admin-items-list" style="display:flex;flex-direction:column;gap:0.65rem;max-height:640px;overflow-y:auto;"></div>
+              </div>
             </div>
           </div>
         </div>
