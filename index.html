@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HalalGlow Aceh — Halal Beauty &amp; Skincare Store</title>
+    <meta
+      name="description"
+      content="Kurator dan direktori belanja makeup serta skincare halal dari brand ternama di Aceh dengan peta gerai, rekomendasi paket, routine planner, keranjang belanja, dan invoice simulasi."
+    />
+    <meta property="og:title" content="HalalGlow Aceh — Halal Beauty &amp; Skincare Store" />
+    <meta
+      property="og:description"
+      content="Kurator dan direktori belanja makeup serta skincare halal dari brand ternama di Aceh dengan peta gerai, rekomendasi paket, routine planner, keranjang belanja, dan invoice simulasi."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Top Editorial Transparency Ribbon -->
+    <div class="promo-ribbon">
+      <div class="container promo-ribbon__inner">
+        <span class="promo-ribbon__note" data-i18n="topNotice">
+          Kurasi Produk Halal &amp; Muslim-Friendly Brand Ternama Tersedia di Gerai Aceh — Harga, stok &amp; kontak adalah simulasi.
+        </span>
+        <span class="promo-ribbon__tag" data-i18n="topBadge">100% Authentic Halal &amp; BPOM Directory</span>
+      </div>
+    </div>
+
+    <!-- Sticky 3-Zone Header -->
+    <header class="site-header">
+      <div class="container">
+        <div class="header-bar">
+          <!-- Zone 1: Brand Wordmark -->
+          <a href="#catalog" class="brand-wordmark" data-action="switch-tab" data-tab="catalog">
+            HalalGlow <span>Aceh</span>
+          </a>
+
+          <!-- Zone 2: Single-Line Navigation Links -->
+          <nav class="desktop-nav" aria-label="Navigasi Utama">
+            <button type="button" class="nav-link is-active" data-action="switch-tab" data-tab="catalog" data-i18n="navCatalog">
+              Katalog
+            </button>
+            <button type="button" class="nav-link" data-action="switch-tab" data-tab="stores" data-i18n="navStores">
+              Gerai Aceh
+            </button>
+            <button type="button" class="nav-link" data-action="switch-tab" data-tab="bundles" data-i18n="navBundles">
+              Paket Hemat
+            </button>
+            <button type="button" class="nav-link" data-action="switch-tab" data-tab="routine">
+              <span data-i18n="navRoutine">Routine</span>
+              <span id="routine-badge" class="nav-count">0</span>
+            </button>
+            <button type="button" class="nav-link" data-action="switch-tab" data-tab="wishlist">
+              <span data-i18n="navWishlist">Beauty Bag</span>
+              <span id="wish-badge" class="nav-count">0</span>
+            </button>
+            <button type="button" class="nav-link" data-action="switch-tab" data-tab="orders">
+              <span data-i18n="navOrders">Pesanan</span>
+              <span id="orders-badge" class="nav-count">0</span>
+            </button>
+            <button type="button" class="nav-link" data-action="switch-tab" data-tab="admin" data-i18n="navAdmin">
+              Kelola Toko
+            </button>
+          </nav>
+
+          <!-- Zone 3: Language, Cart & Account Action -->
+          <div class="header-actions">
+            <div class="lang-switch" role="group" aria-label="Pilih bahasa">
+              <button type="button" class="lang-btn is-active" data-action="set-lang" data-lang="id">ID</button>
+              <button type="button" class="lang-btn" data-action="set-lang" data-lang="en">EN</button>
+            </div>
+
+            <button type="button" class="icon-btn" data-action="open-cart" aria-label="Keranjang Belanja">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              <span id="cart-badge" class="icon-badge">0</span>
+            </button>
+
+            <div id="header-auth-slot"></div>
+
+            <button
+              type="button"
+              class="mobile-menu-btn"
+              data-action="toggle-mobile-menu"
+              aria-label="Menu Navigasi"
+              aria-expanded="false"
+            >
+              <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <nav id="mobile-menu" class="mobile-menu is-hidden" aria-label="Navigasi Seluler">
+          <button type="button" class="btn btn-subtle" style="justify-content:flex-start;" data-action="switch-tab-mobile" data-tab="catalog" data-i18n="navCatalog">
+            Katalog
+          </button>
+          <button type="button" class="btn btn-subtle" style="justify-content:flex-start;" data-action="switch-tab-mobile" data-tab="stores" data-i18n="navStores">
+            Gerai Aceh
+          </button>
+          <button type="button" class="btn btn-subtle" style="justify-content:flex-start;" data-action="switch-tab-mobile" data-tab="bundles" data-i18n="navBundles">
+            Paket Hemat
+          </button>
+          <button type="button" class="btn btn-subtle" style="justify-content:space-between;" data-action="switch-tab-mobile" data-tab="routine">
+            <span data-i18n="navRoutine">Routine</span>
+            <span id="routine-badge-mobile" class="nav-count">0</span>
+          </button>
+          <button type="button" class="btn btn-subtle" style="justify-content:space-between;" data-action="switch-tab-mobile" data-tab="wishlist">
+            <span data-i18n="navWishlist">Beauty Bag</span>
+            <span id="wish-badge-mobile" class="nav-count">0</span>
+          </button>
+          <button type="button" class="btn btn-subtle" style="justify-content:space-between;" data-action="switch-tab-mobile" data-tab="orders">
+            <span data-i18n="navOrders">Pesanan</span>
+            <span id="orders-badge-mobile" class="nav-count">0</span>
+          </button>
+          <button type="button" class="btn btn-subtle" style="justify-content:flex-start;" data-action="switch-tab-mobile" data-tab="admin" data-i18n="navAdmin">
+            Kelola Toko
+          </button>
+          <div id="mobile-auth-slot" style="padding-top:0.5rem;"></div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Main Views Container -->
+    <main id="app-main">
+      <!-- VIEW 1: CATALOG -->
+      <section id="view-catalog" class="view-section">
+        <div class="hero-section">
+          <div class="container">
+            <div class="hero-grid">
+              <div class="hero-copy">
+                <span class="hero-kicker" data-i18n="heroTag">Official Halal Beauty Curator · Aceh</span>
+                <h1 class="hero-title" data-i18n="heroTitle">Belanja Makeup &amp; Skincare Halal Favoritmu di Aceh</h1>
+                <p class="hero-desc" data-i18n="heroDesc">
+                  Temukan kurasi lengkap produk Wardah, Make Over, Skintific, Azarine, ESQA, Somethinc, hingga NPURE yang sudah beredar resmi dan tersedia di gerai kecantikan serta apotek di seluruh Aceh.
+                </p>
+
+                <div class="hero-search-bar">
+                  <div class="hero-search-input-wrap">
+                    <svg width="18" height="18" fill="none" stroke="var(--accent-primary)" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="search"
+                      id="hero-search-input"
+                      placeholder="Cari Wardah, Skintific, Azarine Sunscreen, Make Over Cushion..."
+                      aria-label="Cari produk kecantikan halal"
+                    />
+                  </div>
+                  <button type="button" class="btn btn-primary" data-action="scroll-catalog" data-i18n="heroSearchBtn">
+                    Cari Produk
+                  </button>
+                </div>
+
+                <div class="hero-quick-links">
+                  <button type="button" class="btn btn-dark" data-action="switch-tab" data-tab="bundles" data-i18n="heroBtnBundle">
+                    Cari Paket Sesuai Kulit
+                  </button>
+                  <button type="button" class="btn btn-outline" data-action="switch-tab" data-tab="routine" data-i18n="heroBtnRoutine">
+                    Susun Beauty Routine
+                  </button>
+                  <button type="button" class="btn btn-subtle" data-action="switch-tab" data-tab="stores" data-i18n="heroBtnStore">
+                    Cek Stok Gerai Aceh
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right Spotlight Card -->
+              <aside class="spotlight-box">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem;">
+                  <div>
+                    <span class="section-kicker" style="margin-bottom:0.15rem;">Curated Halal Picks</span>
+                    <h2 style="font-size:1.2rem;" data-i18n="spotlightTitle">Filter Cepat Brand &amp; Jenis Kulit</h2>
+                  </div>
+                  <span id="stat-prod-badge" class="meta-line tabular-nums" style="color:var(--accent-primary);">15 Produk</span>
+                </div>
+
+                <div>
+                  <div style="font-size:0.74rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.5rem;">
+                    Brand Resmi Tersedia di Aceh:
+                  </div>
+                  <div class="filter-chip-group">
+                    <button type="button" class="filter-chip is-active" data-action="quick-brand" data-brand="Semua">Semua Brand</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Wardah">Wardah</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Make Over">Make Over</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Skintific">Skintific</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Azarine">Azarine</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="ESQA">ESQA</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Somethinc">Somethinc</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="NPURE">NPURE</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Rose All Day">Rose All Day</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Luxcrime">Luxcrime</button>
+                    <button type="button" class="filter-chip" data-action="quick-brand" data-brand="Emina">Emina</button>
+                  </div>
+                </div>
+
+                <div class="surface-card surface-card--subtle" style="padding:0.9rem 1rem;font-size:0.75rem;">
+                  <div style="font-weight:700;margin-bottom:0.35rem;">Standar Transparansi HalalGlow Aceh</div>
+                  <p style="color:var(--text-secondary);margin-bottom:0.25rem;">
+                    <strong>Halal BPJPH/MUI:</strong> Produk dengan nomor sertifikat halal resmi terdaftar.
+                  </p>
+                  <p style="color:var(--text-secondary);">
+                    <strong>Muslim-Friendly:</strong> Klaim bebas alkohol, hewani, atau breathable (belum tersertifikasi halal resmi).
+                  </p>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+
+        <div class="lace-divider" aria-hidden="true"></div>
+
+        <!-- Catalog Filter & Products Grid -->
+        <div id="catalog-section" class="container view-pad">
+          <div class="filter-panel">
+            <div class="filter-grid">
+              <div>
+                <label class="field-label" for="filter-search" data-i18n="lblSearch">Cari Produk / Manfaat</label>
+                <input
+                  type="text"
+                  id="filter-search"
+                  class="input"
+                  placeholder="Cushion, Sunscreen, Ceramide..."
+                />
+              </div>
+
+              <div>
+                <label class="field-label" for="filter-brand" data-i18n="lblBrand">Brand</label>
+                <select id="filter-brand" class="select">
+                  <option value="Semua">Semua Brand</option>
+                  <option value="Wardah">Wardah</option>
+                  <option value="Make Over">Make Over</option>
+                  <option value="Skintific">Skintific</option>
+                  <option value="Azarine">Azarine</option>
+                  <option value="ESQA">ESQA</option>
+                  <option value="Somethinc">Somethinc</option>
+                  <option value="NPURE">NPURE</option>
+                  <option value="Rose All Day">Rose All Day</option>
+                  <option value="Luxcrime">Luxcrime</option>
+                  <option value="Emina">Emina</option>
+                  <option value="Avoskin">Avoskin</option>
+                  <option value="Carasun">Carasun</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="field-label" for="filter-category" data-i18n="lblCategory">Kategori</label>
+                <select id="filter-category" class="select">
+                  <option value="Semua">Semua Kategori</option>
+                  <option value="Skincare">Skincare</option>
+                  <option value="Complexion">Complexion</option>
+                  <option value="Lip">Lip Makeup</option>
+                  <option value="Eye & Brow">Eye &amp; Brow</option>
+                  <option value="Micellar & Remover">Micellar &amp; Remover</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="field-label" for="filter-skintype" data-i18n="lblSkinType">Jenis Kulit</label>
+                <select id="filter-skintype" class="select">
+                  <option value="Semua">Semua Jenis Kulit</option>
+                  <option value="Berminyak">Berminyak</option>
+                  <option value="Kering">Kering</option>
+                  <option value="Kombinasi">Kombinasi</option>
+                  <option value="Sensitif">Sensitif</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="field-label" for="filter-halal" data-i18n="lblHalal">Status Halal</label>
+                <select id="filter-halal" class="select">
+                  <option value="Semua">Semua Status</option>
+                  <option value="Resmi">Tersertifikasi Halal Resmi</option>
+                  <option value="Muslim-Friendly">Muslim-Friendly / Klaim</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="field-label" for="filter-sort" data-i18n="lblSort">Urutkan</label>
+                <select id="filter-sort" class="select">
+                  <option value="featured">Top</option>
+                  <option value="price-asc">Termurah</option>
+                  <option value="price-desc">Termahal</option>
+                  <option value="name-asc">A–Z</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filter-footer">
+              <div class="filter-chip-group">
+                <span style="font-size:0.75rem;font-weight:700;color:var(--text-secondary);align-self:center;" data-i18n="quickFilter">Kategori:</span>
+                <button type="button" class="filter-chip is-active" data-action="quick-cat" data-cat="Semua">Semua</button>
+                <button type="button" class="filter-chip" data-action="quick-cat" data-cat="Skincare">Skincare</button>
+                <button type="button" class="filter-chip" data-action="quick-cat" data-cat="Complexion">Complexion</button>
+                <button type="button" class="filter-chip" data-action="quick-cat" data-cat="Lip">Lip</button>
+                <button type="button" class="filter-chip" data-action="quick-cat" data-cat="Eye & Brow">Eye &amp; Brow</button>
+                <button type="button" class="filter-chip" data-action="quick-cat" data-cat="Micellar & Remover">Micellar &amp; Remover</button>
+              </div>
+              <span id="catalog-result-count" class="meta-line tabular-nums" style="color:var(--accent-primary);">Menampilkan 15 produk</span>
+            </div>
+          </div>
+
+          <div id="products-grid" class="grid-3"></div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: ACEH STORES & ILLUSTRATIVE SVG MAP -->
+      <section id="view-stores" class="view-section is-hidden container view-pad">
+        <div class="split-12" style="margin-bottom:2rem;">
+          <div class="col-6 surface-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:0.65rem;">
+              <div>
+                <span class="section-kicker">Aceh Store Locator</span>
+                <h2 class="section-title" style="font-size:1.45rem;" data-i18n="mapTitle">Peta Sebaran Gerai &amp; Apotek Kecantikan Aceh</h2>
+              </div>
+              <button type="button" class="btn btn-subtle" style="min-height:34px;" data-action="select-city" data-city="Semua">
+                Semua Kota
+              </button>
+            </div>
+            <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:1rem;" data-i18n="mapSub">
+              Klik pin kota pada peta ilustratif di bawah untuk melihat gerai kosmetik halal yang tersedia.
+            </p>
+
+            <div class="map-frame">
+              <svg viewBox="0 0 460 280" style="width:100%;height:auto;user-select:none;" role="img" aria-label="Peta Ilustratif Gerai Kecantikan Aceh">
+                <text x="55" y="42" font-size="10" font-weight="600" fill="#D9778B" font-style="italic">Samudra Hindia</text>
+                <text x="305" y="42" font-size="10" font-weight="600" fill="#D9778B" font-style="italic">Selat Malaka</text>
+
+                <path
+                  d="M58,52 L115,44 L175,58 L255,66 L335,92 L392,135 L368,178 L315,182 L272,218 L215,246 L152,212 L105,165 L68,108 Z"
+                  fill="#FCE7F3"
+                  stroke="#E11D74"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                />
+                <ellipse cx="75" cy="24" rx="16" ry="8" fill="#FBCFE8" stroke="#E11D74" stroke-width="1.5" />
+                <text x="97" y="27" font-size="8.5" font-weight="600" fill="#9D174D">Sabang</text>
+
+                <path
+                  d="M88,66 L118,86 L248,78 L218,125 M118,86 L128,158"
+                  fill="none"
+                  stroke="#B85A6E"
+                  stroke-width="1.5"
+                  stroke-dasharray="4 4"
+                />
+
+                <g class="svg-pin" id="pin-Banda Aceh" data-action="select-city" data-city="Banda Aceh" tabindex="0">
+                  <circle class="pin-outer" cx="88" cy="66" r="13" fill="#E11D74" stroke="#ffffff" stroke-width="2.5" />
+                  <text x="88" y="70" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">1</text>
+                  <rect x="28" y="83" width="84" height="18" rx="6" fill="#2D1824" />
+                  <text x="70" y="95" text-anchor="middle" font-size="9" font-weight="700" fill="#ffffff">Banda Aceh</text>
+                </g>
+
+                <g class="svg-pin" id="pin-Aceh Besar" data-action="select-city" data-city="Aceh Besar" tabindex="0">
+                  <circle class="pin-outer" cx="126" cy="84" r="12" fill="#EC4899" stroke="#ffffff" stroke-width="2.5" />
+                  <text x="126" y="88" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">2</text>
+                  <rect x="139" y="74" width="76" height="18" rx="6" fill="#ffffff" stroke="#E11D74" stroke-width="1" />
+                  <text x="177" y="86" text-anchor="middle" font-size="8.5" font-weight="700" fill="#9D174D">Aceh Besar</text>
+                </g>
+
+                <g class="svg-pin" id="pin-Lhokseumawe" data-action="select-city" data-city="Lhokseumawe" tabindex="0">
+                  <circle class="pin-outer" cx="256" cy="76" r="13" fill="#E11D74" stroke="#ffffff" stroke-width="2.5" />
+                  <text x="256" y="80" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">3</text>
+                  <rect x="272" y="66" width="90" height="18" rx="6" fill="#2D1824" />
+                  <text x="317" y="78" text-anchor="middle" font-size="8.5" font-weight="700" fill="#ffffff">Lhokseumawe</text>
+                </g>
+
+                <g class="svg-pin" id="pin-Takengon" data-action="select-city" data-city="Takengon" tabindex="0">
+                  <circle class="pin-outer" cx="218" cy="128" r="12" fill="#BE185D" stroke="#ffffff" stroke-width="2.5" />
+                  <text x="218" y="132" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">4</text>
+                  <rect x="233" y="119" width="78" height="18" rx="6" fill="#ffffff" stroke="#BE185D" stroke-width="1" />
+                  <text x="272" y="131" text-anchor="middle" font-size="8.5" font-weight="700" fill="#831843">Takengon</text>
+                </g>
+
+                <g class="svg-pin" id="pin-Meulaboh" data-action="select-city" data-city="Meulaboh" tabindex="0">
+                  <circle class="pin-outer" cx="128" cy="158" r="12" fill="#D9778B" stroke="#ffffff" stroke-width="2.5" />
+                  <text x="128" y="162" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">5</text>
+                  <rect x="78" y="174" width="78" height="18" rx="6" fill="#ffffff" stroke="#D9778B" stroke-width="1" />
+                  <text x="117" y="186" text-anchor="middle" font-size="8.5" font-weight="700" fill="#5B2C42">Meulaboh</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="col-6" style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="surface-card" style="display:flex;flex-direction:column;gap:0.85rem;">
+              <span class="section-kicker">Offline Beauty Stores &amp; Pharmacies</span>
+              <h2 class="section-title" data-i18n="storeHeading">Daftar Gerai Kosmetik &amp; Apotek Mitra di Aceh</h2>
+              <p style="font-size:0.84rem;color:var(--text-secondary);" data-i18n="storeDesc">
+                Seluruh produk brand ternama di HalalGlow Aceh dapat ditemukan pada gerai kosmetik modern, pusat perbelanjaan, dan apotek jaringan di wilayah Aceh berikut (data stok &amp; kontak WhatsApp bersifat simulasi).
+              </p>
+              <div>
+                <label class="field-label" for="store-city-filter">Filter Kota / Kabupaten:</label>
+                <select id="store-city-filter" class="select">
+                  <option value="Semua">Semua Wilayah Aceh (5 Kota)</option>
+                  <option value="Banda Aceh">Banda Aceh</option>
+                  <option value="Aceh Besar">Aceh Besar</option>
+                  <option value="Lhokseumawe">Lhokseumawe</option>
+                  <option value="Takengon">Takengon (Aceh Tengah)</option>
+                  <option value="Meulaboh">Meulaboh (Aceh Barat)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="surface-card surface-card--subtle" style="font-size:0.8rem;">
+              <div style="font-weight:700;margin-bottom:0.25rem;">Tips Belanja Halal di Gerai</div>
+              <p style="color:var(--text-secondary);">
+                Gunakan fitur <strong>Beauty Bag</strong> untuk menyimpan produk incaran Anda, lalu tunjukkan daftar tersebut ke Beauty Advisor gerai atau klik tombol <strong>WA Advisor (Demo)</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div id="stores-grid" class="grid-3"></div>
+      </section>
+
+      <!-- VIEW 3: CURATED BUNDLE RECOMMENDER -->
+      <section id="view-bundles" class="view-section is-hidden container view-pad">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker">Smart Beauty Bundle Recommender</span>
+            <h2 class="section-title" data-i18n="bndHeading">Rekomendasi Paket Skincare &amp; Makeup Halal</h2>
+            <p class="section-sub" data-i18n="bndSub">
+              Pilih jenis kulit, fokus perawatan atau gaya riasan, serta batas anggaran Anda untuk mendapatkan kombinasi produk brand ternama yang paling sesuai.
+            </p>
+          </div>
+        </div>
+
+        <div class="filter-panel">
+          <div class="grid-2" style="gap:1rem;">
+            <div>
+              <label class="field-label" for="bnd-skintype" data-i18n="bndSkinLbl">Jenis Kulit Anda</label>
+              <select id="bnd-skintype" class="select">
+                <option value="Semua">Semua Jenis Kulit</option>
+                <option value="Berminyak">Berminyak (Oily)</option>
+                <option value="Kering">Kering (Dry)</option>
+                <option value="Kombinasi">Kombinasi (Combination)</option>
+                <option value="Sensitif">Sensitif (Sensitive)</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="bnd-goal" data-i18n="bndGoalLbl">Fokus / Gaya Riasan</label>
+              <select id="bnd-goal" class="select">
+                <option value="Semua">Semua Fokus</option>
+                <option value="Daily Natural Makeup">Daily Natural Halal Makeup</option>
+                <option value="Acne & Oil Control">Acne &amp; Oil Control</option>
+                <option value="Brightening & Hydration">Brightening &amp; Hydration</option>
+                <option value="Bridal & Acara Adat">Bridal &amp; Acara Adat Aceh</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="bnd-budget" data-i18n="bndBudgetLbl">Batas Anggaran Paket</label>
+              <select id="bnd-budget" class="select">
+                <option value="99999999">Semua Anggaran</option>
+                <option value="250000">Maks. Rp 250.000 (Simulasi)</option>
+                <option value="400000">Maks. Rp 400.000 (Simulasi)</option>
+                <option value="650000">Maks. Rp 650.000 (Simulasi)</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button type="button" class="btn btn-outline btn-block" data-action="reset-bundles" data-i18n="bndResetBtn">
+                Reset Kriteria
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="bundles-grid" class="grid-2"></div>
+      </section>
+
+      <!-- VIEW 4: ROUTINE PLANNER & BUDGET CALCULATOR -->
+      <section id="view-routine" class="view-section is-hidden container view-pad">
+        <div class="split-12">
+          <!-- Left Sidebar: Settings, Budget & Saved Routines -->
+          <div class="col-4" style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="surface-card" style="display:flex;flex-direction:column;gap:0.9rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h2 style="font-size:1.15rem;" data-i18n="rtnConfigTitle">Pengaturan Routine &amp; Budget</h2>
+                <span class="meta-line">4 Sesi</span>
+              </div>
+
+              <div>
+                <label class="field-label" for="rtn-name" data-i18n="rtnNameLbl">Nama Rencana Rutinitas</label>
+                <input type="text" id="rtn-name" class="input" value="Daily Halal Glow &amp; Wudhu Kit" />
+              </div>
+
+              <div class="grid-2" style="gap:0.75rem;">
+                <div>
+                  <label class="field-label" for="rtn-skin" data-i18n="rtnSkinLbl">Profil Kulit</label>
+                  <select id="rtn-skin" class="select">
+                    <option value="Kombinasi">Kombinasi</option>
+                    <option value="Berminyak">Berminyak</option>
+                    <option value="Kering">Kering</option>
+                    <option value="Sensitif">Sensitif</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label" for="rtn-budget-cap" data-i18n="rtnBudgetCapLbl">Target Anggaran (Rp)</label>
+                  <input type="number" id="rtn-budget-cap" class="input tabular-nums" step="25000" min="50000" value="550000" />
+                </div>
+              </div>
+
+              <div style="display:flex;gap:0.5rem;">
+                <button type="button" class="btn btn-primary" style="flex:1;" data-action="save-routine" data-i18n="rtnSaveBtn">
+                  Simpan Rutinitas
+                </button>
+                <button type="button" class="btn btn-subtle" data-action="clear-routine" data-i18n="rtnClearBtn">
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            <!-- Budget Calculator Card -->
+            <div class="budget-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="font-size:1.15rem;" data-i18n="budgetTitle">Kalkulator Anggaran Belanja</h3>
+                <span style="font-size:0.7rem;font-weight:700;opacity:0.85;">Simulasi</span>
+              </div>
+
+              <div class="budget-breakdown tabular-nums">
+                <div class="budget-row"><span>AM Skincare</span><strong id="calc-am">Rp 0</strong></div>
+                <div class="budget-row"><span>PM Skincare</span><strong id="calc-pm">Rp 0</strong></div>
+                <div class="budget-row"><span>Daily Halal Makeup</span><strong id="calc-makeup">Rp 0</strong></div>
+                <div class="budget-row"><span>Wudhu Touch-up Kit</span><strong id="calc-wudhu">Rp 0</strong></div>
+              </div>
+
+              <div>
+                <div class="budget-row" style="font-size:0.74rem;margin-bottom:0.35rem;">
+                  <span>Pemakaian Target Budget</span>
+                  <strong id="calc-budget-pct" class="tabular-nums">0%</strong>
+                </div>
+                <div class="progress-track">
+                  <div id="calc-budget-bar" class="progress-fill" style="width:0%"></div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <div>
+                  <div style="font-size:0.72rem;opacity:0.9;" data-i18n="budgetTotalLbl">Total Estimasi Belanja</div>
+                  <div id="calc-total" class="tabular-nums" style="font-size:1.5rem;font-weight:700;">Rp 0</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:0.72rem;opacity:0.9;" data-i18n="budgetItemCountLbl">Total Produk</div>
+                  <div id="calc-count" class="tabular-nums" style="font-size:1rem;font-weight:700;">0 item</div>
+                </div>
+              </div>
+              <p style="font-size:0.7rem;opacity:0.88;" data-i18n="budgetDisclaimer">
+                *Harga merupakan estimasi ritel simulasi di gerai Aceh untuk perencanaan anggaran Anda.
+              </p>
+            </div>
+
+            <!-- Saved Routines -->
+            <div class="surface-card">
+              <h3 style="font-size:0.95rem;margin-bottom:0.75rem;" data-i18n="savedRtnTitle">Rutinitas Tersimpan</h3>
+              <div id="saved-routines-list" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
+            </div>
+          </div>
+
+          <!-- Right Builder Area -->
+          <div class="col-8" style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="surface-card" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
+              <div>
+                <h2 id="display-rtn-title" style="font-size:1.45rem;">Daily Halal Glow &amp; Wudhu Kit</h2>
+                <p id="display-rtn-meta" style="font-size:0.78rem;color:var(--text-secondary);margin-top:0.2rem;">
+                  Profil Kulit: Kombinasi
+                </p>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+                <select id="quick-add-prod" class="select" style="max-width:220px;font-size:0.78rem;" aria-label="Pilih produk untuk ditambahkan"></select>
+                <select id="quick-add-slot" class="select" style="width:auto;font-size:0.78rem;" aria-label="Pilih sesi pemakaian">
+                  <option value="AM">AM Skincare</option>
+                  <option value="PM">PM Skincare</option>
+                  <option value="MAKEUP">Daily Makeup</option>
+                  <option value="WUDHU">Wudhu Touch-up</option>
+                </select>
+                <button type="button" class="btn btn-primary" data-action="quick-add-routine" data-i18n="rtnAddBtn">
+                  + Tambah
+                </button>
+              </div>
+            </div>
+
+            <div id="routine-slots-container" style="display:flex;flex-direction:column;gap:1.15rem;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: BEAUTY BAG / WISHLIST -->
+      <section id="view-wishlist" class="view-section is-hidden container view-pad">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker" data-i18n="wishKicker">My Saved Beauty Bag</span>
+            <h2 class="section-title" data-i18n="wishHeading">Daftar Produk &amp; Gerai Favorit</h2>
+          </div>
+          <button type="button" class="btn btn-outline" data-action="clear-wishlist" data-i18n="wishClearBtn">
+            Kosongkan Beauty Bag
+          </button>
+        </div>
+
+        <div id="wishlist-grid" class="grid-3"></div>
+      </section>
+
+      <!-- VIEW 6: CUSTOMER ORDER HISTORY -->
+      <section id="view-orders" class="view-section is-hidden container view-pad">
+        <div class="section-head">
+          <div>
+            <span class="section-kicker" data-i18n="ordersKicker">Riwayat Transaksi</span>
+            <h2 class="section-title" data-i18n="ordersHeading">Riwayat Pesanan &amp; Struk Digital</h2>
+            <p class="section-sub" data-i18n="ordersSub">
+              Seluruh transaksi checkout simulasi Anda tersimpan otomatis di browser ini. Klik "Lihat Invoice" untuk mencetak atau konfirmasi via WhatsApp.
+            </p>
+          </div>
+          <button type="button" class="btn btn-primary" data-action="open-cart" data-i18n="ordersOpenCartBtn">
+            Buka Keranjang Belanja
+          </button>
+        </div>
+
+        <div id="customer-orders-list" class="grid-2"></div>
+      </section>
+
+      <!-- VIEW 7: ADMIN STORE MANAGER CRUD -->
+      <section id="view-admin" class="view-section is-hidden container view-pad">
+        <div class="budget-card" style="margin-bottom:1.5rem;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+          <div style="max-width:44rem;">
+            <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;opacity:0.9;" data-i18n="adminBannerBadge">
+              Mode Demo Pengelola Toko &amp; Kurator Aceh
+            </span>
+            <h2 style="color:#ffffff;font-size:1.5rem;margin-top:0.2rem;" data-i18n="adminTitle">
+              Dashboard Pengelolaan Katalog &amp; Gerai HalalGlow Aceh
+            </h2>
+            <p style="font-size:0.82rem;opacity:0.92;margin-top:0.35rem;" data-i18n="adminSub">
+              Tambah, ubah, atau hapus katalog produk brand halal yang masuk ke Aceh maupun daftar gerai mitra. Perubahan tersimpan otomatis di browser.
+            </p>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+            <button type="button" class="btn" style="background:rgba(255,255,255,0.18);color:#ffffff;border-color:rgba(255,255,255,0.35);" data-action="open-curator-profile-edit">
+              Edit Profil Kurator
+            </button>
+            <button type="button" class="btn" style="background:#ffffff;color:var(--accent-primary-hover);" data-action="reset-default-data" data-i18n="adminResetBtn">
+              Reset Data Default
+            </button>
+          </div>
+        </div>
+
+        <div class="segmented-tabs">
+          <button type="button" class="btn btn-primary" data-action="admin-entity" data-entity="products">Katalog Produk Brand</button>
+          <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="stores">Gerai &amp; Apotek Aceh</button>
+          <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="bundles">Paket Rekomendasi</button>
+          <button type="button" class="btn btn-subtle" data-action="admin-entity" data-entity="orders">Riwayat Transaksi Checkout</button>
+        </div>
+
+        <div class="split-12">
+          <div class="col-5" id="admin-form-col">
+            <div class="surface-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <h3 id="admin-form-title" style="font-size:1.15rem;">Tambah Produk Brand Baru</h3>
+                <button type="button" style="border:none;background:transparent;color:var(--accent-primary);font-size:0.75rem;font-weight:700;text-decoration:underline;" data-action="admin-new-form">
+                  Form Baru
+                </button>
+              </div>
+              <form id="admin-crud-form" style="display:flex;flex-direction:column;gap:0.8rem;font-size:0.82rem;"></form>
+            </div>
+          </div>
+
+          <div class="col-7" id="admin-list-col">
+            <div class="surface-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <h3 id="admin-list-title" style="font-size:1.05rem;">Daftar Produk Aktif</h3>
+                <span id="admin-count-label" class="meta-line tabular-nums" style="color:var(--accent-primary);">0 item</span>
+              </div>
+              <div id="admin-items-list" style="display:flex;flex-direction:column;gap:0.65rem;max-height:640px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- SLIDE-OVER SHOPPING CART DRAWER -->
+    <div id="cart-drawer" class="drawer-root is-hidden" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title">
+      <div class="drawer-backdrop" data-action="close-cart"></div>
+      <aside class="drawer-panel">
+        <div class="drawer-header">
+          <div>
+            <h2 id="cart-drawer-title" data-i18n="cartTitle">Keranjang Belanja</h2>
+            <p id="cart-drawer-subtitle" style="font-size:0.72rem;opacity:0.9;">0 produk dipilih</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <button
+              type="button"
+              style="border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;padding:0.3rem 0.65rem;border-radius:8px;font-size:0.72rem;font-weight:700;"
+              data-action="clear-cart"
+              data-i18n="cartClearBtn"
+            >
+              Kosongkan
+            </button>
+            <button type="button" class="close-circle-btn" data-action="close-cart" aria-label="Tutup keranjang">✕</button>
+          </div>
+        </div>
+
+        <div class="drawer-body">
+          <div id="cart-items-container" style="display:flex;flex-direction:column;gap:0.75rem;"></div>
+
+          <div id="cart-options-box" style="display:flex;flex-direction:column;gap:0.9rem;padding-top:0.85rem;border-top:1px solid var(--border-hairline);">
+            <div>
+              <label class="field-label" for="cart-shipping-method" data-i18n="cartShippingLbl">
+                Opsi Pengambilan / Pengiriman Aceh
+              </label>
+              <select id="cart-shipping-method" class="select" style="font-size:0.78rem;">
+                <option value="pickup">Ambil di Gerai Aceh (Pick-up Store — Gratis Rp 0)</option>
+                <option value="instant">Kurir Lokal Instan Kota Tujuan (Estimasi Rp 12.000)</option>
+                <option value="regular">Ekspedisi Reguler Seluruh Aceh (Estimasi Rp 20.000)</option>
+              </select>
+            </div>
+
+            <div id="cart-pickup-store-box">
+              <label class="field-label" for="cart-pickup-store" data-i18n="cartPickupStoreLbl">
+                Pilih Cabang Gerai Pengambilan:
+              </label>
+              <select id="cart-pickup-store" class="select" style="font-size:0.78rem;">
+                <option value="HalalGlow Suzuya Mall Banda Aceh">HalalGlow Suzuya Mall Banda Aceh</option>
+                <option value="Sociolla Pop-Up Hermes Palace Banda Aceh">Sociolla Pop-Up Hermes Palace Banda Aceh</option>
+                <option value="Lhokseumawe Beauty Center">Lhokseumawe Beauty Center</option>
+                <option value="Gerai Mitra Lambaro Aceh Besar">Gerai Mitra Lambaro Aceh Besar</option>
+                <option value="Takengon Skincare & Halal Gallery">Takengon Skincare &amp; Halal Gallery</option>
+                <option value="Meulaboh Halal Cosmetics">Meulaboh Halal Cosmetics</option>
+              </select>
+            </div>
+
+            <div class="surface-card surface-card--subtle" style="padding:0.9rem;display:flex;flex-direction:column;gap:0.5rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <label class="field-label" for="cart-voucher-input" style="margin:0;" data-i18n="cartVoucherLbl">
+                  Kode Voucher Simulasi
+                </label>
+                <span id="cart-voucher-status" style="font-size:0.72rem;font-weight:700;color:var(--accent-primary);"></span>
+              </div>
+              <div style="display:flex;gap:0.45rem;">
+                <input
+                  type="text"
+                  id="cart-voucher-input"
+                  class="input"
+                  style="font-size:0.78rem;text-transform:uppercase;"
+                  placeholder="HALALGLOW10 / ACEHCANTIK"
+                />
+                <button type="button" class="btn btn-dark" data-action="apply-voucher" data-i18n="cartApplyVoucherBtn">
+                  Pakai
+                </button>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+                <button type="button" class="filter-chip" style="font-size:0.68rem;" data-action="quick-voucher" data-code="HALALGLOW10">
+                  HALALGLOW10 (10%)
+                </button>
+                <button type="button" class="filter-chip" style="font-size:0.68rem;" data-action="quick-voucher" data-code="ACEHCANTIK">
+                  ACEHCANTIK (-Rp 15.000)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="drawer-footer">
+          <div style="display:flex;flex-direction:column;gap:0.35rem;font-size:0.78rem;">
+            <div class="budget-row">
+              <span data-i18n="cartSubtotalLbl">Subtotal Produk</span>
+              <strong id="cart-subtotal" class="tabular-nums">Rp 0</strong>
+            </div>
+            <div class="budget-row" style="color:var(--accent-primary);">
+              <span data-i18n="cartDiscountLbl">Diskon Voucher</span>
+              <strong id="cart-discount" class="tabular-nums">- Rp 0</strong>
+            </div>
+            <div class="budget-row">
+              <span data-i18n="cartShippingCostLbl">Ongkos Kirim</span>
+              <strong id="cart-shipping-cost" class="tabular-nums">Rp 0</strong>
+            </div>
+            <div class="budget-row" style="font-size:1rem;font-weight:700;padding-top:0.5rem;border-top:1px solid var(--border-hairline);">
+              <span data-i18n="cartTotalLbl">Total Pembayaran</span>
+              <span id="cart-grand-total" class="tabular-nums" style="color:var(--accent-primary);">Rp 0</span>
+            </div>
+          </div>
+          <button type="button" id="btn-proceed-checkout" class="btn btn-primary btn-block" data-action="open-checkout" data-i18n="cartCheckoutBtn">
+            Lanjut ke Checkout
+          </button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- CHECKOUT & INVOICE MODAL -->
+    <div id="checkout-modal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-label="Checkout dan Invoice">
+      <div class="modal-dialog" id="checkout-modal-body"></div>
+    </div>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div id="detail-modal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-label="Detail Produk">
+      <div class="modal-dialog" id="modal-body"></div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-label="Akun Pengguna">
+      <div class="modal-dialog modal-dialog--sm" id="auth-modal-body"></div>
+    </div>
+
+    <!-- STORE QR CODE MODAL -->
+    <div id="store-qr-modal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-label="QR Code Gerai Aceh">
+      <div class="modal-dialog modal-dialog--sm" id="store-qr-modal-body"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div style="display:flex;flex-direction:column;gap:0.65rem;">
+            <div class="brand-wordmark" style="color:#ffffff;">HalalGlow <span style="color:#f472b6;">Aceh</span></div>
+            <p style="font-size:0.8rem;color:#fbcfe8;" data-i18n="footerAbout">
+              Kurator dan direktori belanja makeup serta skincare halal dari berbagai brand ternama Indonesia yang tersedia di gerai kecantikan, pusat perbelanjaan, dan apotek di wilayah Aceh.
+            </p>
+          </div>
+
+          <div>
+            <h4 style="font-family:var(--font-sans);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#f9a8d4;margin-bottom:0.6rem;" data-i18n="footerHubs">
+              Titik Gerai Mitra di Aceh
+            </h4>
+            <ul style="margin:0;padding-left:1rem;font-size:0.78rem;color:#fbcfe8;display:flex;flex-direction:column;gap:0.35rem;">
+              <li>Banda Aceh (Suzuya Mall, Hermes Palace, Peunayong)</li>
+              <li>Aceh Besar (Lambaro Beauty &amp; Pharmacy Hub)</li>
+              <li>Lhokseumawe (Lhokseumawe Beauty Center)</li>
+              <li>Takengon, Aceh Tengah (Gayo Skincare &amp; Apotek)</li>
+              <li>Meulaboh, Aceh Barat (Meulaboh Halal Cosmetics)</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 style="font-family:var(--font-sans);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:#f9a8d4;margin-bottom:0.6rem;" data-i18n="footerDisclaimerTitle">
+              Transparansi &amp; Batasan Purwarupa
+            </h4>
+            <ul style="margin:0;padding-left:1rem;font-size:0.76rem;color:#fbcfe8;display:flex;flex-direction:column;gap:0.35rem;">
+              <li data-i18n="disc1">Status Tersertifikasi Halal BPJPH/MUI dibedakan secara tegas dari klaim Muslim-Friendly / Alcohol-Free / Wudhu-Friendly yang belum tersertifikasi resmi.</li>
+              <li data-i18n="disc2">Harga ritel, nomor registrasi BPOM/Halal, ketersediaan stok gerai, dan kontak WhatsApp Beauty Advisor adalah data simulasi.</li>
+              <li data-i18n="disc3">Aplikasi ini tidak menampilkan ulasan atau rating bintang konsumen palsu.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>© 2026 HalalGlow Aceh — Halal Beauty &amp; Skincare Store</span>
+          <span>Penyimpanan Lokal (localStorage)</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

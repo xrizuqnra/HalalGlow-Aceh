@@ -1,0 +1,60 @@
+/* Design Tokens — HalalGlow Aceh */
+:root {
+  /* Color Palette (60% warm porcelain canvas, 30% clean surface/plum ink, 10% blush rose accent) */
+  --bg-canvas: #fff9fa;
+  --bg-surface: #ffffff;
+  --bg-subtle: #fdf2f6;
+  --bg-muted: #fce7f3;
+
+  --text-primary: #2d1824;
+  --text-secondary: #5b2c42;
+  --text-muted: #8b566d;
+  --text-inverse: #ffffff;
+
+  --accent-primary: #e11d74;
+  --accent-primary-hover: #be185d;
+  --accent-soft: #fce7f3;
+  --accent-rose: #d9778b;
+  --accent-plum: #2d1824;
+  --accent-plum-hover: #431e30;
+
+  --border-hairline: rgba(131, 24, 67, 0.12);
+  --border-strong: rgba(225, 29, 116, 0.35);
+
+  --status-certified-bg: #fdf2f6;
+  --status-certified-border: rgba(225, 29, 116, 0.28);
+  --status-friendly-bg: #fffbeb;
+  --status-friendly-border: rgba(180, 83, 9, 0.25);
+  --status-friendly-text: #78350f;
+
+  /* Typography */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Type Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-hero: clamp(2rem, 3.6vw, 3.125rem);
+
+  /* Spacing & Radii */
+  --container-max: 1280px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Elevation (Single-level crisp elevation) */
+  --shadow-sm: 0 1px 3px rgba(45, 24, 36, 0.05), 0 1px 2px rgba(45, 24, 36, 0.04);
+  --shadow-md: 0 10px 28px -6px rgba(45, 24, 36, 0.09), 0 4px 10px -4px rgba(225, 29, 116, 0.08);
+  --shadow-overlay: 0 24px 48px -12px rgba(45, 24, 36, 0.24);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 160ms;
+}
